@@ -1,20 +1,19 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - DB_PATH=/data/continuity.db
-      - JWT_SECRET=your-secret-key-change-in-production
-    volumes:
-      - backend_data:/data
-      - ./backend:/app
-    command: go run cmd/server/main.go
-    restart: unless-stopped
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        environment:
+            - DB_PATH=/data/continuity.db
+            - JWT_SECRET=your-secret-key-change-in-production
+        volumes:
+            - backend_data:/data
+            - ./backend:/app
+        restart: unless-stopped
 
 volumes:
-  backend_data:
+    backend_data:

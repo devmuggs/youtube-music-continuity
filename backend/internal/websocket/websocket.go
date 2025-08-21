@@ -16,9 +16,13 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		// Allow connections from Chrome extensions and localhost
 		origin := r.Header.Get("Origin")
+
+		// log the current origin for debugging
+		log.Printf("WebSocket connection from origin: %s", origin)
+
 		return origin == "" || // WebSocket connections might not have origin
 			len(origin) > 16 && origin[:16] == "chrome-extension" ||
-			len(origin) > 16 && origin[:16] == "http://localhost"
+			len(origin) > 16 && origin[:16] == "http://localhost" || origin == "https://music.youtube.com"
 	},
 }
 
@@ -32,12 +36,12 @@ type Client struct {
 
 // Hub maintains the set of active clients
 type Hub struct {
-	clients    map[*Client]bool
-	broadcast  chan []byte
-	register   chan *Client
-	unregister chan *Client
+	clients     map[*Client]bool
+	broadcast   chan []byte
+	register    chan *Client
+	unregister  chan *Client
 	userClients map[int][]*Client // Map user ID to their clients
-	mutex      sync.RWMutex
+	mutex       sync.RWMutex
 }
 
 // NewHub creates a new WebSocket hub
@@ -70,7 +74,7 @@ func (h *Hub) Run() {
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				close(client.send)
-				
+
 				// Remove from user clients
 				userClients := h.userClients[client.userID]
 				for i, c := range userClients {
@@ -79,7 +83,7 @@ func (h *Hub) Run() {
 						break
 					}
 				}
-				
+
 				// Clean up empty user client list
 				if len(h.userClients[client.userID]) == 0 {
 					delete(h.userClients, client.userID)
@@ -107,7 +111,7 @@ func (h *Hub) Run() {
 func (h *Hub) BroadcastToUser(userID int, message []byte) {
 	h.mutex.RLock()
 	defer h.mutex.RUnlock()
-	
+
 	clients := h.userClients[userID]
 	for _, client := range clients {
 		select {

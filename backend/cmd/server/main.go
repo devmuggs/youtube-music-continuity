@@ -33,7 +33,7 @@ func main() {
 
 	// CORS middleware
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"chrome-extension://*", "http://localhost:*"},
+		AllowedOrigins:   []string{"chrome-extension://*", "http://localhost:*", "https://music.youtube.com"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
@@ -44,11 +44,11 @@ func main() {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/auth/register", authHandler.Register).Methods("POST")
 	api.HandleFunc("/auth/login", authHandler.Login).Methods("POST")
-	
+
 	// Session routes (protected)
 	api.HandleFunc("/session", auth.AuthMiddleware(authHandler.GetSession)).Methods("GET")
 	api.HandleFunc("/session", auth.AuthMiddleware(authHandler.UpdateSession)).Methods("PUT")
-	
+
 	// WebSocket endpoint
 	api.HandleFunc("/ws", websocket.HandleWebSocket(hub, db))
 
