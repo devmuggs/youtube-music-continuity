@@ -30,3 +30,19 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Backend build artifacts
+backend/bin/
+backend/continuity.db
+
+# Extension build artifacts
+youtube-music-continuity-extension.zip
+
+# Logs
+*.log
+
+# Node modules (if needed for extension development)
+node_modules/
+
+# Docker volumes
+docker-data/
